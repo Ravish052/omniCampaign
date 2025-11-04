@@ -73,14 +73,14 @@ class Response(BaseModel, Generic[T]):
 @app.get("/campaigns", response_model = Response[list[Campaign]])
 async def read_campaigns(session: sessionDep):
     campaigns = session.exec(select(Campaign)).all()
-    return {"campaigns": campaigns}
+    return {"data": campaigns}
 
-@app.get("/campaigns/{campaign_id}")
+@app.get("/campaigns/{campaign_id}", response_model = Response[Campaign])
 async def read_campaign(campaign_id: int, session: sessionDep):
     campaign = session.get(Campaign, campaign_id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
-    return {"campaign": campaign}
+    return {"data": campaign}
 
 
 @app.post('/campaigns', status_code=201, response_model = Response[Campaign])
@@ -90,7 +90,7 @@ async def create_campaign(body : CampaignCreate, session: sessionDep):
     session.add(db_campaign)
     session.commit()
     session.refresh(db_campaign)
-    return {"campaign": db_campaign}
+    return {"data": db_campaign}
 
 @app.put("/campaigns/{campaign_id}", response_model = Response[Campaign])
 async def update_campaign(campaign_id: int, body: CampaignCreate, session: sessionDep):
